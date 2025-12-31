@@ -51,7 +51,8 @@ export default async function OrderDetailPage({ params, searchParams }) {
     const items = result.data?.items || [];
     const address = result.data?.address;
 
-    const error = searchParams?.error;
+    const sp = await searchParams;
+    const error = sp?.error;
 
     async function cancelAction(formData) {
         "use server";

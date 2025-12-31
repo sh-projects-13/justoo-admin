@@ -90,7 +90,8 @@ export default async function AdminDetailPage({ params, searchParams }) {
         redirect("/admin/admins");
     }
 
-    const error = searchParams?.error;
+    const sp = await searchParams;
+    const error = sp?.error;
 
     return (
         <div className="min-h-screen bg-zinc-50 px-6 py-10">

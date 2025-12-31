@@ -23,8 +23,9 @@ export default async function OrdersPage({ searchParams }) {
         );
     }
 
-    const filter = typeof searchParams?.filter === "string" ? searchParams.filter : "";
-    const status = typeof searchParams?.status === "string" ? searchParams.status : "";
+    const sp = await searchParams;
+    const filter = typeof sp?.filter === "string" ? sp.filter : "";
+    const status = typeof sp?.status === "string" ? sp.status : "";
 
     const result = await listOrders({ filter: filter || undefined, status: status || undefined });
 

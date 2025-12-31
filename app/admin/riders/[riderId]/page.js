@@ -52,7 +52,8 @@ export default async function RiderDetailPage({ params, searchParams }) {
 
     const rider = result.data?.rider;
     const canMutate = canMutateRiders(currentAdmin);
-    const error = searchParams?.error;
+    const sp = await searchParams;
+    const error = sp?.error;
 
     async function saveAction(formData) {
         "use server";

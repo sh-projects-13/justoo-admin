@@ -56,7 +56,8 @@ export default async function NewRiderPage({ searchParams }) {
         redirect("/admin/riders");
     }
 
-    const error = searchParams?.error;
+    const sp = await searchParams;
+    const error = sp?.error;
 
     return (
         <div className="min-h-screen bg-zinc-50 px-6 py-10">

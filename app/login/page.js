@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
+import { Button, Card, Field, Input, Notice, Page } from "@/_components/ui";
+
 function getBackendUrl() {
     const base = process.env.NEXT_PUBLIC_BACKEND_URL;
     return base ? base.replace(/\/$/, "") : "";
@@ -12,107 +14,92 @@ export default function LoginPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     const nextUrl = useMemo(() => {
         const n = searchParams?.get("next");
         return n && n.startsWith("/") ? n : "/admin";
     }, [searchParams]);
 
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [error, setError] = useState("");
-
     async function onSubmit(e) {
         e.preventDefault();
         setError("");
-
-        const backendUrl = getBackendUrl();
-        if (!backendUrl) {
-            setError("Missing NEXT_PUBLIC_BACKEND_URL");
-            return;
-        }
-
         setIsSubmitting(true);
+
         try {
+            const backendUrl = getBackendUrl();
+            if (!backendUrl) {
+                setError("Missing NEXT_PUBLIC_BACKEND_URL.");
+                return;
+            }
+
             const res = await fetch(`${backendUrl}/admin/auth/login`, {
                 method: "POST",
-                headers: {
-                    "content-type": "application/json",
-                    accept: "application/json",
-                },
+                headers: { "Content-Type": "application/json" },
                 credentials: "include",
                 body: JSON.stringify({ email, password }),
             });
 
-            if (!res.ok) {
-                let msg = "LOGIN_FAILED";
-                try {
-                    const data = await res.json();
-                    msg = data?.error || msg;
-                } catch {
-                    // ignore
-                }
-                setError(msg);
+            const text = await res.text();
+            let data = null;
+            try {
+                data = text ? JSON.parse(text) : null;
+            } catch {
+                data = null;
+            }
+
+            if (res.ok) {
+                router.replace(nextUrl);
                 return;
             }
 
-            router.replace(nextUrl);
-            router.refresh();
-        } catch {
-            setError("NETWORK_ERROR");
+            setError(data?.message || data?.error || `Login failed (${res.status}).`);
+        } catch (err) {
+            setError(err?.message || "Network error.");
         } finally {
             setIsSubmitting(false);
         }
     }
 
     return (
-        <div className="min-h-screen bg-zinc-50 flex items-center justify-center px-4">
-            <div className="w-full max-w-sm rounded-2xl border border-zinc-200 bg-white p-6">
+        <Page size="sm" className="flex items-center justify-center">
+            <Card className="w-full max-w-sm">
                 <h1 className="text-xl font-semibold text-zinc-900">Login</h1>
                 <p className="mt-1 text-sm text-zinc-600">Sign in to continue.</p>
 
                 <form className="mt-6 space-y-4" onSubmit={onSubmit}>
-                    <div className="space-y-1">
-                        <label className="block text-sm font-medium text-zinc-800">Email</label>
-                        <input
+                    <Field label="Email">
+                        <Input
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             type="email"
                             autoComplete="email"
                             required
-                            className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900/10"
                             placeholder="admin@example.com"
                         />
-                    </div>
+                    </Field>
 
-                    <div className="space-y-1">
-                        <label className="block text-sm font-medium text-zinc-800">Password</label>
-                        <input
+                    <Field label="Password">
+                        <Input
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             type="password"
                             autoComplete="current-password"
                             required
-                            className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900/10"
                             placeholder="••••••••"
                         />
-                    </div>
+                    </Field>
 
-                    {error ? (
-                        <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
-                            {error}
-                        </div>
-                    ) : null}
+                    {error ? <Notice>{error}</Notice> : null}
 
-                    <button
-                        type="submit"
-                        disabled={isSubmitting}
-                        className="w-full rounded-xl bg-zinc-900 px-3 py-2 text-sm font-medium text-white disabled:opacity-60"
-                    >
+                    <Button type="submit" disabled={isSubmitting} className="w-full">
                         {isSubmitting ? "Signing in…" : "Sign in"}
-                    </button>
+                    </Button>
                 </form>
-            </div>
-        </div>
+            </Card>
+        </Page>
     );
 }

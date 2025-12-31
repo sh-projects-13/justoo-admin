@@ -6,6 +6,20 @@ export function AdminShell({ children }) {
     return <div className="min-h-screen bg-zinc-50 px-6 py-10">{children}</div>;
 }
 
+export function Shell({ children }) {
+    return <div className="min-h-screen bg-zinc-50 px-6 py-10">{children}</div>;
+}
+
+export function Page({ size = "xl", className, children }) {
+    return (
+        <Shell>
+            <Container size={size} className={className}>
+                {children}
+            </Container>
+        </Shell>
+    );
+}
+
 export function Container({ size = "xl", className, children }) {
     const sizes = {
         sm: "max-w-sm",

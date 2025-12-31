@@ -1,60 +1,66 @@
 import Link from "next/link";
 
+import { ButtonLink, Card, Page, PageHeader } from "@/_components/ui";
+
 export default function AdminHomePage() {
     return (
-        <div className="min-h-screen bg-zinc-50 px-6 py-10">
-            <div className="mx-auto w-full max-w-4xl">
-                <div className="flex items-center justify-between">
-                    <h1 className="text-2xl font-semibold text-zinc-900">Admin</h1>
-                    <Link
-                        href="/logout"
-                        className="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900"
-                    >
-                        Logout
-                    </Link>
-                </div>
+        <Page size="lg" className="max-w-5xl">
+            <PageHeader
+                title="Admin"
+                subtitle="Youre signed in. Choose a section to manage."
+                actions={<ButtonLink href="/logout">Logout</ButtonLink>}
+            />
 
-                <div className="mt-8 rounded-2xl border border-zinc-200 bg-white p-6 text-zinc-700">
-                    <div className="flex flex-col gap-3">
-                        <div>You’re signed in.</div>
-                        <div>
-                            <Link href="/admin/admins" className="text-zinc-900 underline underline-offset-4">
-                                Manage admins
-                            </Link>
-                        </div>
-                        <div>
-                            <Link href="/admin/customers" className="text-zinc-900 underline underline-offset-4">
-                                Manage customers
-                            </Link>
-                        </div>
-                        <div>
-                            <Link href="/admin/inventory" className="text-zinc-900 underline underline-offset-4">
-                                Manage inventory
-                            </Link>
-                        </div>
-                        <div>
-                            <Link href="/admin/orders" className="text-zinc-900 underline underline-offset-4">
-                                Manage orders
-                            </Link>
-                        </div>
-                        <div>
-                            <Link href="/admin/products" className="text-zinc-900 underline underline-offset-4">
-                                Manage products
-                            </Link>
-                        </div>
-                        <div>
-                            <Link href="/admin/riders" className="text-zinc-900 underline underline-offset-4">
-                                Manage riders
-                            </Link>
-                        </div>
-                        <div>
-                            <Link href="/admin/whitelist" className="text-zinc-900 underline underline-offset-4">
-                                Manage phone whitelist
-                            </Link>
-                        </div>
-                    </div>
-                </div>
+            <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <Link href="/admin/admins" className="block">
+                    <Card className="h-full hover:bg-zinc-50">
+                        <div className="text-sm font-medium text-zinc-900">Admins</div>
+                        <div className="mt-1 text-sm text-zinc-600">Create, update, and remove admin accounts.</div>
+                    </Card>
+                </Link>
+
+                <Link href="/admin/customers" className="block">
+                    <Card className="h-full hover:bg-zinc-50">
+                        <div className="text-sm font-medium text-zinc-900">Customers</div>
+                        <div className="mt-1 text-sm text-zinc-600">View and edit customer details.</div>
+                    </Card>
+                </Link>
+
+                <Link href="/admin/inventory" className="block">
+                    <Card className="h-full hover:bg-zinc-50">
+                        <div className="text-sm font-medium text-zinc-900">Inventory</div>
+                        <div className="mt-1 text-sm text-zinc-600">Stock levels, movements, and alerts.</div>
+                    </Card>
+                </Link>
+
+                <Link href="/admin/orders" className="block">
+                    <Card className="h-full hover:bg-zinc-50">
+                        <div className="text-sm font-medium text-zinc-900">Orders</div>
+                        <div className="mt-1 text-sm text-zinc-600">Track orders, view events, and cancel when needed.</div>
+                    </Card>
+                </Link>
+
+                <Link href="/admin/products" className="block">
+                    <Card className="h-full hover:bg-zinc-50">
+                        <div className="text-sm font-medium text-zinc-900">Products</div>
+                        <div className="mt-1 text-sm text-zinc-600">Create products and manage images.</div>
+                    </Card>
+                </Link>
+
+                <Link href="/admin/riders" className="block">
+                    <Card className="h-full hover:bg-zinc-50">
+                        <div className="text-sm font-medium text-zinc-900">Riders</div>
+                        <div className="mt-1 text-sm text-zinc-600">Create and manage rider accounts.</div>
+                    </Card>
+                </Link>
+
+                <Link href="/admin/whitelist" className="block sm:col-span-2">
+                    <Card className="h-full hover:bg-zinc-50">
+                        <div className="text-sm font-medium text-zinc-900">Phone whitelist</div>
+                        <div className="mt-1 text-sm text-zinc-600">Allow-listed phone numbers for access.</div>
+                    </Card>
+                </Link>
             </div>
-        </div>
+        </Page>
     );
 }

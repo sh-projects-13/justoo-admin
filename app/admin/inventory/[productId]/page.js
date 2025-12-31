@@ -57,7 +57,8 @@ export default async function InventoryDetailPage({ params, searchParams }) {
     }
 
     const item = result.data?.inventory;
-    const error = searchParams?.error;
+    const sp = await searchParams;
+    const error = sp?.error;
 
     async function saveAction(formData) {
         "use server";

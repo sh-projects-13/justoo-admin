@@ -52,7 +52,8 @@ export default async function ProductDetailPage({ params, searchParams }) {
 
     const product = result.data?.product;
     const canMutate = canMutateProducts(currentAdmin);
-    const error = searchParams?.error;
+    const sp = await searchParams;
+    const error = sp?.error;
 
     async function saveAction(formData) {
         "use server";

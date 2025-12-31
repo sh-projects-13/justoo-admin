@@ -70,7 +70,8 @@ export default async function WhitelistPage({ searchParams }) {
         redirect("/admin/whitelist");
     }
 
-    const error = searchParams?.error;
+    const sp = await searchParams;
+    const error = sp?.error;
 
     const listRes = await listWhitelistedPhones();
     if (!listRes.res.ok) {
