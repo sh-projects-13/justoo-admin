@@ -9,6 +9,16 @@ import {
     listWhitelistedPhones,
 } from "../../../lib/adminApi";
 
+function normalizePhone10(value) {
+    const digits = String(value || "").replace(/\D/g, "");
+    return digits.length >= 10 ? digits.slice(-10) : digits;
+}
+
+function formatPhoneUi(value) {
+    const digits = normalizePhone10(value);
+    return digits.length === 10 ? `+91 ${digits}` : String(value || "");
+}
+
 function canManageWhitelist(admin) {
     const roles = admin?.roles || [];
     return Array.isArray(roles) && (roles.includes("SUPERADMIN") || roles.includes("ADMIN"));
@@ -43,7 +53,12 @@ export default async function WhitelistPage({ searchParams }) {
     async function addAction(formData) {
         "use server";
 
-        const phone = String(formData.get("phone") || "").trim();
+        const raw = String(formData.get("phone") || "").trim();
+        const phone = normalizePhone10(raw);
+        if (phone.length !== 10) {
+            redirect(`/admin/whitelist?error=${encodeURIComponent("PHONE_MUST_BE_10_DIGITS")}`);
+        }
+
         const result = await addPhoneToWhitelist({ phone });
 
         if (!result.res.ok) {
@@ -112,12 +127,21 @@ export default async function WhitelistPage({ searchParams }) {
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
                         <div className="flex-1 space-y-1">
                             <label className="block text-sm font-medium text-zinc-800">Phone</label>
-                            <input
-                                name="phone"
-                                required
-                                className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900/10"
-                                placeholder="+1 555 123 4567"
-                            />
+                            <div className="flex overflow-hidden rounded-xl border border-zinc-200 bg-white focus-within:ring-2 focus-within:ring-zinc-900/10">
+                                <span className="flex items-center border-r border-zinc-200 bg-zinc-50 px-3 text-sm text-zinc-700">+91</span>
+                                <input
+                                    name="phone"
+                                    required
+                                    inputMode="numeric"
+                                    autoComplete="tel-national"
+                                    pattern="\\d{10}"
+                                    minLength={10}
+                                    maxLength={10}
+                                    className="w-full bg-white px-3 py-2 text-sm text-zinc-900 outline-none"
+                                    placeholder="9876543210"
+                                />
+                            </div>
+                            <p className="text-xs text-zinc-500">Enter a 10-digit mobile number.</p>
                         </div>
                         <button type="submit" className="rounded-xl bg-zinc-900 px-4 py-2 text-sm font-medium text-white">
                             Add
@@ -138,7 +162,7 @@ export default async function WhitelistPage({ searchParams }) {
                         <tbody>
                             {phones.map((p) => (
                                 <tr key={p.phone} className="border-b border-zinc-100 last:border-b-0">
-                                    <td className="px-4 py-3 text-zinc-900">{p.phone}</td>
+                                    <td className="px-4 py-3 text-zinc-900">{formatPhoneUi(p.phone)}</td>
                                     <td className="px-4 py-3 text-zinc-700">{p.addedByAdminId || "—"}</td>
                                     <td className="px-4 py-3 text-zinc-700">{String(p.createdAt || "")}</td>
                                     <td className="px-4 py-3">

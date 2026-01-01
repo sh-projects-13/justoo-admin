@@ -3,6 +3,9 @@ import Link from "next/link";
 import { fetchMe, listInventoryMovementsForProduct } from "../../../../../lib/adminApi";
 
 export default async function InventoryMovementsPage({ params }) {
+    const p = await params;
+    const productId = p?.productId;
+
     const me = await fetchMe();
     if (me.res.status === 401) {
         return (
@@ -14,8 +17,6 @@ export default async function InventoryMovementsPage({ params }) {
             </div>
         );
     }
-
-    const productId = params?.productId;
     const result = await listInventoryMovementsForProduct(productId);
 
     if (!result.res.ok) {

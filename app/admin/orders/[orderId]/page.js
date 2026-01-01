@@ -9,6 +9,9 @@ function canCancel(status) {
 }
 
 export default async function OrderDetailPage({ params, searchParams }) {
+    const p = await params;
+    const orderId = p?.orderId;
+
     const me = await fetchMe();
     if (me.res.status === 401) {
         return (
@@ -20,8 +23,6 @@ export default async function OrderDetailPage({ params, searchParams }) {
             </div>
         );
     }
-
-    const orderId = params?.orderId;
     const result = await getOrderById(orderId);
 
     if (result.res.status === 404) {

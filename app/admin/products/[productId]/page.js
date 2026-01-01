@@ -10,6 +10,9 @@ function canMutateProducts(admin) {
 }
 
 export default async function ProductDetailPage({ params, searchParams }) {
+    const p = await params;
+    const productId = p?.productId;
+
     const me = await fetchMe();
     const currentAdmin = me.data?.admin;
 
@@ -23,8 +26,6 @@ export default async function ProductDetailPage({ params, searchParams }) {
             </div>
         );
     }
-
-    const productId = params?.productId;
     const result = await getProductById(productId);
 
     if (result.res.status === 404) {

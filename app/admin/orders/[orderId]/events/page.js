@@ -3,6 +3,9 @@ import Link from "next/link";
 import { fetchMe, getOrderEvents } from "../../../../../lib/adminApi";
 
 export default async function OrderEventsPage({ params }) {
+    const p = await params;
+    const orderId = p?.orderId;
+
     const me = await fetchMe();
     if (me.res.status === 401) {
         return (
@@ -14,8 +17,6 @@ export default async function OrderEventsPage({ params }) {
             </div>
         );
     }
-
-    const orderId = params?.orderId;
     const result = await getOrderEvents(orderId);
 
     if (!result.res.ok) {

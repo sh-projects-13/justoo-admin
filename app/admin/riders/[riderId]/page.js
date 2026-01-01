@@ -4,12 +4,20 @@ import { revalidatePath } from "next/cache";
 
 import { deleteRider, fetchMe, getRiderById, updateRider } from "../../../../lib/adminApi";
 
+function normalizePhone10(value) {
+    const digits = String(value || "").replace(/\D/g, "");
+    return digits.length >= 10 ? digits.slice(-10) : digits;
+}
+
 function canMutateRiders(admin) {
     const roles = admin?.roles || [];
     return Array.isArray(roles) && (roles.includes("SUPERADMIN") || roles.includes("ADMIN"));
 }
 
 export default async function RiderDetailPage({ params, searchParams }) {
+    const p = await params;
+    const riderId = p?.riderId;
+
     const me = await fetchMe();
     const currentAdmin = me.data?.admin;
 
@@ -23,8 +31,6 @@ export default async function RiderDetailPage({ params, searchParams }) {
             </div>
         );
     }
-
-    const riderId = params?.riderId;
     const result = await getRiderById(riderId);
 
     if (result.res.status === 404) {
@@ -51,6 +57,7 @@ export default async function RiderDetailPage({ params, searchParams }) {
     }
 
     const rider = result.data?.rider;
+    const riderPhone10 = normalizePhone10(rider?.phone);
     const canMutate = canMutateRiders(currentAdmin);
     const sp = await searchParams;
     const error = sp?.error;
@@ -62,9 +69,15 @@ export default async function RiderDetailPage({ params, searchParams }) {
             redirect(`/admin/riders/${encodeURIComponent(riderId)}?error=${encodeURIComponent("ADMIN_FORBIDDEN")}`);
         }
 
+        const phoneRaw = String(formData.get("phone") || "").trim();
+        const phone = normalizePhone10(phoneRaw);
+        if (phone.length !== 10) {
+            redirect(`/admin/riders/${encodeURIComponent(riderId)}?error=${encodeURIComponent("PHONE_MUST_BE_10_DIGITS")}`);
+        }
+
         const payload = {
             name: String(formData.get("name") || "").trim(),
-            phone: String(formData.get("phone") || "").trim(),
+            phone,
             username: String(formData.get("username") || "").trim(),
             isActive: formData.get("isActive") === "on",
         };
@@ -132,13 +145,23 @@ export default async function RiderDetailPage({ params, searchParams }) {
 
                     <div className="space-y-1">
                         <label className="block text-sm font-medium text-zinc-800">Phone</label>
-                        <input
-                            name="phone"
-                            required
-                            disabled={!canMutate}
-                            defaultValue={rider?.phone || ""}
-                            className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900/10 disabled:opacity-60"
-                        />
+                        <div className="flex overflow-hidden rounded-xl border border-zinc-200 bg-white focus-within:ring-2 focus-within:ring-zinc-900/10">
+                            <span className="flex items-center border-r border-zinc-200 bg-zinc-50 px-3 text-sm text-zinc-700">+91</span>
+                            <input
+                                name="phone"
+                                required
+                                disabled={!canMutate}
+                                defaultValue={riderPhone10}
+                                inputMode="numeric"
+                                autoComplete="tel-national"
+                                pattern="\\d{10}"
+                                minLength={10}
+                                maxLength={10}
+                                className="w-full bg-white px-3 py-2 text-sm text-zinc-900 outline-none disabled:bg-zinc-100 disabled:opacity-60"
+                                placeholder="9876543210"
+                            />
+                        </div>
+                        <p className="text-xs text-zinc-500">Enter a 10-digit mobile number.</p>
                     </div>
 
                     <div className="space-y-1">

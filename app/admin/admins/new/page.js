@@ -1,30 +1,27 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
 import { createAdmin, fetchMe } from "../../../../lib/adminApi";
 
-function parseRoles(value) {
-    const raw = String(value || "").trim();
-    if (!raw) return undefined;
-    return raw
-        .split(",")
-        .map((r) => r.trim())
-        .filter(Boolean);
-}
+import { ButtonLink, Card, Notice, Page, PageHeader } from "@/_components/ui";
 
-export default async function NewAdminPage() {
+const ROLE_OPTIONS = ["SUPERADMIN", "ADMIN", "INVENTORY_VIEWER"];
+
+export default async function NewAdminPage({ searchParams }) {
+    const sp = await searchParams;
+    const error = typeof sp?.error === "string" ? sp.error : "";
+
     const me = await fetchMe();
     const currentAdmin = me.data?.admin;
 
     if (!me.res.ok || !(currentAdmin?.roles || []).includes("SUPERADMIN")) {
         return (
-            <div className="min-h-screen bg-zinc-50 px-6 py-10">
-                <div className="mx-auto w-full max-w-xl rounded-2xl border border-zinc-200 bg-white p-6">
+            <Page size="lg" className="max-w-xl">
+                <Card>
                     <h1 className="text-xl font-semibold text-zinc-900">New Admin</h1>
-                    <p className="mt-2 text-sm text-zinc-700">Forbidden.</p>
-                </div>
-            </div>
+                    <Notice className="mt-4">Forbidden.</Notice>
+                </Card>
+            </Page>
         );
     }
 
@@ -37,8 +34,11 @@ export default async function NewAdminPage() {
             password: String(formData.get("password") || "").trim(),
         };
 
-        const roles = parseRoles(formData.get("roles"));
-        if (roles !== undefined) payload.roles = roles;
+        const roles = formData
+            .getAll("roles")
+            .map((r) => String(r).trim())
+            .filter(Boolean);
+        if (roles.length) payload.roles = roles;
 
         const result = await createAdmin(payload);
         if (!result.res.ok) {
@@ -51,19 +51,17 @@ export default async function NewAdminPage() {
     }
 
     return (
-        <div className="min-h-screen bg-zinc-50 px-6 py-10">
-            <div className="mx-auto w-full max-w-xl">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-2xl font-semibold text-zinc-900">New Admin</h1>
-                        <p className="mt-1 text-sm text-zinc-600">Create an admin account.</p>
-                    </div>
-                    <Link href="/admin/admins" className="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900">
-                        Back
-                    </Link>
-                </div>
+        <Page size="lg" className="max-w-xl">
+            <PageHeader
+                title="New Admin"
+                subtitle="Create an admin account."
+                actions={<ButtonLink href="/admin/admins">Back</ButtonLink>}
+            />
 
-                <form action={action} className="mt-6 space-y-4 rounded-2xl border border-zinc-200 bg-white p-6">
+            {error ? <Notice className="mt-4">{error}</Notice> : null}
+
+            <Card className="mt-6">
+                <form action={action} className="space-y-4">
                     <div className="space-y-1">
                         <label className="block text-sm font-medium text-zinc-800">Name</label>
                         <input
@@ -97,20 +95,24 @@ export default async function NewAdminPage() {
                     </div>
 
                     <div className="space-y-1">
-                        <label className="block text-sm font-medium text-zinc-800">Roles (comma separated)</label>
-                        <input
+                        <label className="block text-sm font-medium text-zinc-800">Role</label>
+                        <select
                             name="roles"
                             className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900/10"
-                            placeholder="ADMIN, SUPERADMIN"
-                        />
-                        <p className="text-xs text-zinc-500">Leave blank to use backend defaults.</p>
+                        >
+                            {ROLE_OPTIONS.map((role) => (
+                                <option key={role} value={role}>
+                                    {role}
+                                </option>
+                            ))}
+                        </select>
                     </div>
 
                     <button type="submit" className="w-full rounded-xl bg-zinc-900 px-3 py-2 text-sm font-medium text-white">
                         Create
                     </button>
                 </form>
-            </div>
-        </div>
+            </Card>
+        </Page>
     );
 }

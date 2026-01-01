@@ -14,6 +14,9 @@ function parseRoles(value) {
 }
 
 export default async function AdminDetailPage({ params, searchParams }) {
+    const p = await params;
+    const adminId = p?.adminId;
+
     const me = await fetchMe();
     const currentAdmin = me.data?.admin;
 
@@ -28,7 +31,6 @@ export default async function AdminDetailPage({ params, searchParams }) {
         );
     }
 
-    const adminId = params?.adminId;
     const result = await getAdminById(adminId);
 
     if (result.res.status === 404) {

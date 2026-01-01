@@ -4,7 +4,15 @@ import { revalidatePath } from "next/cache";
 
 import { fetchMe, getCustomerById, updateCustomer, deleteCustomer } from "../../../../lib/adminApi";
 
+function normalizePhone10(value) {
+    const digits = String(value || "").replace(/\D/g, "");
+    return digits.length >= 10 ? digits.slice(-10) : digits;
+}
+
 export default async function CustomerDetailPage({ params, searchParams }) {
+    const p = await params;
+    const customerId = p?.customerId;
+
     const me = await fetchMe();
     if (me.res.status === 401) {
         return (
@@ -16,8 +24,6 @@ export default async function CustomerDetailPage({ params, searchParams }) {
             </div>
         );
     }
-
-    const customerId = params?.customerId;
     const result = await getCustomerById(customerId);
 
     if (result.res.status === 404) {
@@ -44,13 +50,20 @@ export default async function CustomerDetailPage({ params, searchParams }) {
     }
 
     const customer = result.data?.customer;
+    const customerPhone10 = normalizePhone10(customer?.phone);
 
     async function saveAction(formData) {
         "use server";
 
+        const phoneRaw = String(formData.get("phone") || "").trim();
+        const phone = phoneRaw ? normalizePhone10(phoneRaw) : "";
+        if (phoneRaw && phone.length !== 10) {
+            redirect(`/admin/customers/${encodeURIComponent(customerId)}?error=${encodeURIComponent("PHONE_MUST_BE_10_DIGITS")}`);
+        }
+
         const payload = {
             name: String(formData.get("name") || "").trim(),
-            phone: String(formData.get("phone") || "").trim() || undefined,
+            phone: phoneRaw ? phone : undefined,
         };
 
         const emailValue = String(formData.get("email") ?? "");
@@ -115,12 +128,21 @@ export default async function CustomerDetailPage({ params, searchParams }) {
 
                     <div className="space-y-1">
                         <label className="block text-sm font-medium text-zinc-800">Phone</label>
-                        <input
-                            name="phone"
-                            defaultValue={customer?.phone || ""}
-                            className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900/10"
-                            placeholder="+1 555 123 4567"
-                        />
+                        <div className="flex overflow-hidden rounded-xl border border-zinc-200 bg-white focus-within:ring-2 focus-within:ring-zinc-900/10">
+                            <span className="flex items-center border-r border-zinc-200 bg-zinc-50 px-3 text-sm text-zinc-700">+91</span>
+                            <input
+                                name="phone"
+                                defaultValue={customerPhone10}
+                                inputMode="numeric"
+                                autoComplete="tel-national"
+                                pattern="\\d{10}"
+                                minLength={10}
+                                maxLength={10}
+                                className="w-full bg-white px-3 py-2 text-sm text-zinc-900 outline-none"
+                                placeholder="9876543210"
+                            />
+                        </div>
+                        <p className="text-xs text-zinc-500">Enter a 10-digit mobile number (optional).</p>
                     </div>
 
                     <div className="space-y-1">

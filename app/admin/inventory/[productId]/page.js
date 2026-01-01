@@ -18,6 +18,9 @@ function toNumberOrUndefined(value) {
 }
 
 export default async function InventoryDetailPage({ params, searchParams }) {
+    const p = await params;
+    const productId = p?.productId;
+
     const me = await fetchMe();
     if (me.res.status === 401) {
         return (
@@ -29,8 +32,6 @@ export default async function InventoryDetailPage({ params, searchParams }) {
             </div>
         );
     }
-
-    const productId = params?.productId;
     const result = await getInventoryItem(productId);
 
     if (result.res.status === 404) {
@@ -223,21 +224,28 @@ export default async function InventoryDetailPage({ params, searchParams }) {
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <div className="space-y-1">
                             <label className="block text-sm font-medium text-zinc-800">Reason</label>
-                            <input
+                            <select
                                 name="reason"
                                 defaultValue="ADJUSTMENT"
                                 className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900/10"
-                                placeholder="ADJUSTMENT"
-                            />
+                            >
+                                <option value="INITIAL_STOCK">INITIAL_STOCK</option>
+                                <option value="PURCHASE">PURCHASE</option>
+                                <option value="ADJUSTMENT">ADJUSTMENT</option>
+                                <option value="ORDER_CANCELLED">ORDER_CANCELLED</option>
+                            </select>
                         </div>
                         <div className="space-y-1">
                             <label className="block text-sm font-medium text-zinc-800">Reference type</label>
-                            <input
+                            <select
                                 name="referenceType"
                                 defaultValue="ADJUSTMENT"
                                 className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900/10"
-                                placeholder="ADJUSTMENT"
-                            />
+                            >
+                                <option value="ORDER">ORDER</option>
+                                <option value="PURCHASE">PURCHASE</option>
+                                <option value="ADJUSTMENT">ADJUSTMENT</option>
+                            </select>
                         </div>
                     </div>
 

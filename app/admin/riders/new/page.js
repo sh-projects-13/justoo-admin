@@ -4,6 +4,11 @@ import { revalidatePath } from "next/cache";
 
 import { createRider, fetchMe } from "../../../../lib/adminApi";
 
+function normalizePhone10(value) {
+    const digits = String(value || "").replace(/\D/g, "");
+    return digits.length >= 10 ? digits.slice(-10) : digits;
+}
+
 function canMutateRiders(admin) {
     const roles = admin?.roles || [];
     return Array.isArray(roles) && (roles.includes("SUPERADMIN") || roles.includes("ADMIN"));
@@ -38,9 +43,15 @@ export default async function NewRiderPage({ searchParams }) {
     async function action(formData) {
         "use server";
 
+        const phoneRaw = String(formData.get("phone") || "").trim();
+        const phone = normalizePhone10(phoneRaw);
+        if (phone.length !== 10) {
+            redirect(`/admin/riders/new?error=${encodeURIComponent("PHONE_MUST_BE_10_DIGITS")}`);
+        }
+
         const payload = {
             name: String(formData.get("name") || "").trim(),
-            phone: String(formData.get("phone") || "").trim(),
+            phone,
             username: String(formData.get("username") || "").trim(),
             password: String(formData.get("password") || "").trim(),
             isActive: formData.get("isActive") === "on",
@@ -91,12 +102,21 @@ export default async function NewRiderPage({ searchParams }) {
 
                     <div className="space-y-1">
                         <label className="block text-sm font-medium text-zinc-800">Phone</label>
-                        <input
-                            name="phone"
-                            required
-                            className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900/10"
-                            placeholder="+1 555 123 4567"
-                        />
+                        <div className="flex overflow-hidden rounded-xl border border-zinc-200 bg-white focus-within:ring-2 focus-within:ring-zinc-900/10">
+                            <span className="flex items-center border-r border-zinc-200 bg-zinc-50 px-3 text-sm text-zinc-700">+91</span>
+                            <input
+                                name="phone"
+                                required
+                                inputMode="numeric"
+                                autoComplete="tel-national"
+                                pattern="\\d{10}"
+                                minLength={10}
+                                maxLength={10}
+                                className="w-full bg-white px-3 py-2 text-sm text-zinc-900 outline-none"
+                                placeholder="9876543210"
+                            />
+                        </div>
+                        <p className="text-xs text-zinc-500">Enter a 10-digit mobile number.</p>
                     </div>
 
                     <div className="space-y-1">
