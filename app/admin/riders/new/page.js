@@ -109,7 +109,6 @@ export default async function NewRiderPage({ searchParams }) {
                                 required
                                 inputMode="numeric"
                                 autoComplete="tel-national"
-                                pattern="\\d{10}"
                                 minLength={10}
                                 maxLength={10}
                                 className="w-full bg-white px-3 py-2 text-sm text-zinc-900 outline-none"

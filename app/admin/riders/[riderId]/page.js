@@ -154,7 +154,6 @@ export default async function RiderDetailPage({ params, searchParams }) {
                                 defaultValue={riderPhone10}
                                 inputMode="numeric"
                                 autoComplete="tel-national"
-                                pattern="\\d{10}"
                                 minLength={10}
                                 maxLength={10}
                                 className="w-full bg-white px-3 py-2 text-sm text-zinc-900 outline-none disabled:bg-zinc-100 disabled:opacity-60"
