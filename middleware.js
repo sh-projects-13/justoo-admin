@@ -23,8 +23,20 @@ export async function middleware(req) {
         return NextResponse.next();
     }
 
-    const cookieName = process.env.SESSION_COOKIE_NAME || "justoo.sid";
-    const sessionCookie = req.cookies.get(cookieName)?.value;
+    const candidateCookieNames = Array.from(
+        new Set([
+            process.env.SESSION_COOKIE_NAME,
+            "justoo.sid",
+            "connect.sid",
+        ].filter(Boolean))
+    );
+
+    const found = candidateCookieNames
+        .map((name) => ({ name, value: req.cookies.get(name)?.value }))
+        .find((c) => c.value);
+
+    const cookieName = found?.name || (process.env.SESSION_COOKIE_NAME);
+    const sessionCookie = found?.value;
 
     if (!sessionCookie) {
         const url = req.nextUrl.clone();
@@ -40,10 +52,13 @@ export async function middleware(req) {
     }
 
     try {
+        // Forward the session cookie to backend for validation.
+        // We must send the cookie with the correct name the backend expects.
+        const backendCookieName = process.env.SESSION_COOKIE_NAME || "justoo.sid";
         const meRes = await fetch(`${backendUrl.replace(/\/$/, "")}/admin/auth/me`, {
             method: "GET",
             headers: {
-                cookie: req.headers.get("cookie") || "",
+                cookie: `${backendCookieName}=${sessionCookie}`,
                 accept: "application/json",
             },
             cache: "no-store",

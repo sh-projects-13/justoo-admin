@@ -2,7 +2,13 @@ import { NextResponse } from "next/server";
 
 export async function GET(req) {
     const backendUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_BACKEND_URL;
-    const cookieName = process.env.SESSION_COOKIE_NAME || "justoo.sid";
+    const cookieNames = Array.from(
+        new Set([
+            process.env.SESSION_COOKIE_NAME,
+            "justoo.sid",
+            "connect.sid",
+        ].filter(Boolean))
+    );
 
     if (backendUrl) {
         try {
@@ -20,6 +26,8 @@ export async function GET(req) {
     }
 
     const res = NextResponse.redirect(new URL("/login", req.url));
-    res.cookies.set(cookieName, "", { expires: new Date(0), path: "/" });
+    for (const name of cookieNames) {
+        res.cookies.set(name, "", { expires: new Date(0), path: "/" });
+    }
     return res;
 }

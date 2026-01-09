@@ -1,18 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 import { Button, Field, Input, Notice } from "@/_components/ui";
 
-function getBackendUrl() {
-    const base = process.env.NEXT_PUBLIC_BACKEND_URL;
-    return base ? base.replace(/\/$/, "") : "";
-}
-
 export default function LoginForm({ nextUrl }) {
-    const router = useRouter();
-
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
@@ -24,13 +16,7 @@ export default function LoginForm({ nextUrl }) {
         setIsSubmitting(true);
 
         try {
-            const backendUrl = getBackendUrl();
-            if (!backendUrl) {
-                setError("Missing NEXT_PUBLIC_BACKEND_URL.");
-                return;
-            }
-
-            const res = await fetch(`${backendUrl}/admin/auth/login`, {
+            const res = await fetch("/api/auth/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
@@ -46,7 +32,9 @@ export default function LoginForm({ nextUrl }) {
             }
 
             if (res.ok) {
-                router.replace(nextUrl || "/admin");
+                // Use hard navigation to ensure cookie is sent on the next request.
+                // router.replace() is a soft navigation that can race with cookie storage.
+                window.location.href = nextUrl || "/admin";
                 return;
             }
 
