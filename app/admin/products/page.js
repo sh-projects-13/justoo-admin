@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { fetchMe, listProducts } from "../../../lib/adminApi";
+import { formatProductCategory } from "../../../lib/constants/productCategories";
 
 import { ButtonLink, Card, ExternalLink, InlineLink, Notice, Page, PageHeader } from "@/_components/ui";
 
@@ -65,6 +66,7 @@ export default async function ProductsPage() {
                     <thead className="border-b border-zinc-200 bg-zinc-50 text-zinc-600">
                         <tr>
                             <th className="px-4 py-3 font-medium">Name</th>
+                            <th className="px-4 py-3 font-medium">Category</th>
                             <th className="px-4 py-3 font-medium">Active</th>
                             <th className="px-4 py-3 font-medium">Image</th>
                             <th className="px-4 py-3 font-medium">Actions</th>
@@ -74,6 +76,7 @@ export default async function ProductsPage() {
                         {products.map((p) => (
                             <tr key={p.id} className="border-b border-zinc-100 last:border-b-0">
                                 <td className="px-4 py-3 text-zinc-900">{p.name}</td>
+                                <td className="px-4 py-3 text-zinc-700">{formatProductCategory(p.productCategory)}</td>
                                 <td className="px-4 py-3 text-zinc-700">{p.isActive ? "Yes" : "No"}</td>
                                 <td className="px-4 py-3 text-zinc-700">
                                     {p.imgUrl ? (
@@ -89,7 +92,7 @@ export default async function ProductsPage() {
                         ))}
                         {!products.length ? (
                             <tr>
-                                <td className="px-4 py-6 text-zinc-600" colSpan={4}>
+                                <td className="px-4 py-6 text-zinc-600" colSpan={5}>
                                     No products found.
                                 </td>
                             </tr>

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
 import { createProduct, fetchMe } from "../../../../lib/adminApi";
+import { formatProductCategory, PRODUCT_CATEGORIES } from "../../../../lib/constants/productCategories";
 
 function canMutateProducts(admin) {
     const roles = admin?.roles || [];
@@ -41,11 +42,13 @@ export default async function NewProductPage({ searchParams }) {
         const name = String(formData.get("name") || "").trim();
         const description = String(formData.get("description") || "").trim();
         const isActive = formData.get("isActive") === "on";
+        const productCategory = String(formData.get("productCategory") || "").trim() || "others";
         const image = formData.get("image");
 
         const payload = new FormData();
         payload.set("name", name);
         if (description) payload.set("description", description);
+        payload.set("productCategory", productCategory);
         payload.set("isActive", String(isActive));
         if (image && typeof image === "object") {
             payload.set("image", image);
@@ -102,6 +105,21 @@ export default async function NewProductPage({ searchParams }) {
                             className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900/10"
                             placeholder="Optional"
                         />
+                    </div>
+
+                    <div className="space-y-1">
+                        <label className="block text-sm font-medium text-zinc-800">Category</label>
+                        <select
+                            name="productCategory"
+                            defaultValue="others"
+                            className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900/10"
+                        >
+                            {PRODUCT_CATEGORIES.map((c) => (
+                                <option key={c} value={c}>
+                                    {formatProductCategory(c)}
+                                </option>
+                            ))}
+                        </select>
                     </div>
 
                     <label className="flex items-center gap-2 text-sm text-zinc-800">
