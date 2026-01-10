@@ -86,7 +86,7 @@ export default async function ProductDetailPage({ params, searchParams }) {
         }
 
         revalidatePath("/admin/products");
-        redirect("/admin/products");
+        redirect("/admin/products?toast=" + encodeURIComponent("Product updated") + "&toastType=success");
     }
 
     async function deleteAction() {
@@ -103,7 +103,7 @@ export default async function ProductDetailPage({ params, searchParams }) {
         }
 
         revalidatePath("/admin/products");
-        redirect("/admin/products");
+        redirect("/admin/products?toast=" + encodeURIComponent("Product deleted") + "&toastType=success");
     }
 
     return (

@@ -60,7 +60,7 @@ export function Notice({ variant = "error", children, className }) {
 
 export function Button({ variant = "primary", className, ...props }) {
     const base =
-        "inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-medium outline-none transition-colors focus:ring-2 focus:ring-zinc-900/10 disabled:opacity-60";
+        "inline-flex cursor-pointer items-center justify-center rounded-xl px-4 py-2 text-sm font-medium outline-none transition-colors focus:ring-2 focus:ring-zinc-900/10 disabled:cursor-not-allowed disabled:opacity-60";
 
     const styles =
         variant === "primary"
@@ -76,7 +76,7 @@ export function Button({ variant = "primary", className, ...props }) {
 
 export function ButtonLink({ href, variant = "secondary", className, children, ...props }) {
     const base =
-        "inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-medium outline-none transition-colors focus:ring-2 focus:ring-zinc-900/10";
+        "inline-flex cursor-pointer items-center justify-center rounded-xl px-4 py-2 text-sm font-medium outline-none transition-colors focus:ring-2 focus:ring-zinc-900/10";
 
     const styles =
         variant === "primary"
@@ -130,7 +130,7 @@ export function Textarea({ className, ...props }) {
 
 export function InlineLink({ href, children }) {
     return (
-        <Link href={href} className="text-zinc-900 underline underline-offset-4 hover:text-zinc-700">
+        <Link href={href} className="cursor-pointer text-zinc-900 underline underline-offset-4 hover:text-zinc-700">
             {children}
         </Link>
     );
@@ -139,7 +139,7 @@ export function InlineLink({ href, children }) {
 export function ExternalLink({ href, children }) {
     return (
         <a
-            className="text-zinc-900 underline underline-offset-4 hover:text-zinc-700"
+            className="cursor-pointer text-zinc-900 underline underline-offset-4 hover:text-zinc-700"
             href={href}
             target="_blank"
             rel="noreferrer"

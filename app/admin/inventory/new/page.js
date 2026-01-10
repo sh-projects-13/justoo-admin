@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
-import { createInventoryItem, fetchMe } from "../../../../lib/adminApi";
+import { createInventoryItem, fetchMe, listProducts } from "../../../../lib/adminApi";
 
 export default async function NewInventoryItemPage({ searchParams }) {
     const me = await fetchMe();
@@ -16,6 +16,9 @@ export default async function NewInventoryItemPage({ searchParams }) {
             </div>
         );
     }
+
+    const productsRes = await listProducts();
+    const products = productsRes.res.ok ? productsRes.data?.products || [] : [];
 
     async function action(formData) {
         "use server";
@@ -36,7 +39,7 @@ export default async function NewInventoryItemPage({ searchParams }) {
         }
 
         revalidatePath("/admin/inventory");
-        redirect("/admin/inventory");
+        redirect("/admin/inventory?toast=" + encodeURIComponent("Inventory created") + "&toastType=success");
     }
 
     const sp = await searchParams;
@@ -63,13 +66,25 @@ export default async function NewInventoryItemPage({ searchParams }) {
 
                 <form action={action} className="mt-6 space-y-4 rounded-2xl border border-zinc-200 bg-white p-6">
                     <div className="space-y-1">
-                        <label className="block text-sm font-medium text-zinc-800">Product ID</label>
-                        <input
+                        <label className="block text-sm font-medium text-zinc-800">Product</label>
+                        <select
                             name="productId"
                             required
+                            defaultValue=""
                             className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus:ring-2 focus:ring-zinc-900/10"
-                            placeholder="uuid"
-                        />
+                        >
+                            <option value="" disabled>
+                                Select a product…
+                            </option>
+                            {products.map((p) => (
+                                <option key={p.id} value={p.id}>
+                                    {p.name}
+                                </option>
+                            ))}
+                        </select>
+                        {!productsRes.res.ok ? (
+                            <p className="text-xs text-zinc-500">Could not load products list. You can’t create inventory until products load.</p>
+                        ) : null}
                     </div>
 
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -124,7 +139,11 @@ export default async function NewInventoryItemPage({ searchParams }) {
                         />
                     </div>
 
-                    <button type="submit" className="w-full rounded-xl bg-zinc-900 px-3 py-2 text-sm font-medium text-white">
+                    <button
+                        type="submit"
+                        disabled={!productsRes.res.ok || products.length === 0}
+                        className="w-full rounded-xl bg-zinc-900 px-3 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
+                    >
                         Create
                     </button>
                 </form>

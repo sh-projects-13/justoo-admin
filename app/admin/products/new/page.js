@@ -61,7 +61,7 @@ export default async function NewProductPage({ searchParams }) {
         }
 
         revalidatePath("/admin/products");
-        redirect("/admin/products");
+        redirect("/admin/products?toast=" + encodeURIComponent("Product created") + "&toastType=success");
     }
 
     const sp = await searchParams;
