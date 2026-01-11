@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 
 import { createRider, fetchMe } from "../../../../lib/adminApi";
 
+export const dynamic = "force-dynamic";
+
 function normalizePhone10(value) {
     const digits = String(value || "").replace(/\D/g, "");
     return digits.length >= 10 ? digits.slice(-10) : digits;

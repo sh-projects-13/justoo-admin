@@ -105,7 +105,19 @@ export async function POST(req) {
     // Critical part: set the session cookie on the FRONTEND domain.
     // This makes Next middleware + server components see it on /admin requests.
     if (sessionCookie?.name && typeof sessionCookie.value === "string") {
-        res.cookies.set(sessionCookie.name, sessionCookie.value, {
+        // Decode the cookie value if it was URL-encoded by the backend,
+        // so we store the raw value. NextResponse.cookies will re-encode if needed.
+        let cookieValue = sessionCookie.value;
+        try {
+            // Only decode if it looks URL-encoded (contains %)
+            if (cookieValue.includes("%")) {
+                cookieValue = decodeURIComponent(cookieValue);
+            }
+        } catch {
+            // If decoding fails, use the original value
+        }
+
+        res.cookies.set(sessionCookie.name, cookieValue, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: "lax",

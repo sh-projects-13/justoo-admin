@@ -4,6 +4,8 @@ import { fetchMe, listCustomers } from "../../../lib/adminApi";
 
 import { ButtonLink, Card, InlineLink, Notice, Page, PageHeader } from "@/_components/ui";
 
+export const dynamic = "force-dynamic";
+
 export default async function CustomersPage() {
     const me = await fetchMe();
 

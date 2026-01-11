@@ -4,6 +4,8 @@ import { fetchMe, listAdmins } from "../../../lib/adminApi";
 
 import { ButtonLink, Card, InlineLink, Notice, Page, PageHeader } from "@/_components/ui";
 
+export const dynamic = "force-dynamic";
+
 function hasSuperadminRole(admin) {
     const roles = admin?.roles || [];
     return Array.isArray(roles) && roles.includes("SUPERADMIN");

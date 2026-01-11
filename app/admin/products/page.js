@@ -5,6 +5,9 @@ import { formatProductCategory } from "../../../lib/constants/productCategories"
 
 import { ButtonLink, Card, ExternalLink, InlineLink, Notice, Page, PageHeader } from "@/_components/ui";
 
+// Ensure this page is always dynamically rendered (not cached/static)
+export const dynamic = "force-dynamic";
+
 function canMutateProducts(admin) {
     const roles = admin?.roles || [];
     return Array.isArray(roles) && (roles.includes("SUPERADMIN") || roles.includes("ADMIN"));

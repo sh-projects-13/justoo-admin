@@ -2,6 +2,8 @@ import Link from "next/link";
 
 import { fetchMe, listOutOfStockInventory } from "../../../../../lib/adminApi";
 
+export const dynamic = "force-dynamic";
+
 export default async function OutOfStockInventoryPage() {
     const me = await fetchMe();
     if (me.res.status === 401) {

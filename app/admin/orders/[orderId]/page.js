@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 
 import { cancelOrder, fetchMe, getOrderById } from "../../../../lib/adminApi";
 
+export const dynamic = "force-dynamic";
+
 function canCancel(status) {
     return !["CANCELLED", "DELIVERED", "REFUNDED"].includes(String(status || "").toUpperCase());
 }

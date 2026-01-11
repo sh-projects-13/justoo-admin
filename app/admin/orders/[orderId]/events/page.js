@@ -2,6 +2,8 @@ import Link from "next/link";
 
 import { fetchMe, getOrderEvents } from "../../../../../lib/adminApi";
 
+export const dynamic = "force-dynamic";
+
 export default async function OrderEventsPage({ params }) {
     const p = await params;
     const orderId = p?.orderId;

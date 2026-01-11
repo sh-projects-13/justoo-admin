@@ -2,6 +2,8 @@ import Link from "next/link";
 
 import { fetchMe, listOrders } from "../../../lib/adminApi";
 
+export const dynamic = "force-dynamic";
+
 function buildUrl(base, params) {
     const sp = new URLSearchParams();
     if (params?.filter) sp.set("filter", params.filter);

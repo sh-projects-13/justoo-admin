@@ -10,6 +10,8 @@ import {
     updateInventoryItem,
 } from "../../../../lib/adminApi";
 
+export const dynamic = "force-dynamic";
+
 function toNumberOrUndefined(value) {
     const raw = String(value ?? "").trim();
     if (!raw) return undefined;

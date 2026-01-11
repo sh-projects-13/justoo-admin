@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 
 import { fetchMe, getAdminById, updateAdmin, deleteAdmin } from "../../../../lib/adminApi";
 
+export const dynamic = "force-dynamic";
+
 function parseRoles(value) {
     const raw = String(value ?? "").trim();
     if (!raw) return [];

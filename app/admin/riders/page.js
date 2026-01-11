@@ -4,6 +4,8 @@ import { fetchMe, listRiders } from "../../../lib/adminApi";
 
 import { ButtonLink, Card, InlineLink, Notice, Page, PageHeader } from "@/_components/ui";
 
+export const dynamic = "force-dynamic";
+
 function canMutateRiders(admin) {
     const roles = admin?.roles || [];
     return Array.isArray(roles) && (roles.includes("SUPERADMIN") || roles.includes("ADMIN"));

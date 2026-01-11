@@ -5,6 +5,8 @@ import { createAdmin, fetchMe } from "../../../../lib/adminApi";
 
 import { ButtonLink, Card, Notice, Page, PageHeader } from "@/_components/ui";
 
+export const dynamic = "force-dynamic";
+
 const ROLE_OPTIONS = ["SUPERADMIN", "ADMIN", "INVENTORY_VIEWER"];
 
 export default async function NewAdminPage({ searchParams }) {

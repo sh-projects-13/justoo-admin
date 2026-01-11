@@ -2,6 +2,8 @@ import Link from "next/link";
 
 import { fetchMe, listInventoryMovementsForProduct } from "../../../../../lib/adminApi";
 
+export const dynamic = "force-dynamic";
+
 export default async function InventoryMovementsPage({ params }) {
     const p = await params;
     const productId = p?.productId;

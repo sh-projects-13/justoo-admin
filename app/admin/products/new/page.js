@@ -5,6 +5,8 @@ import { revalidatePath } from "next/cache";
 import { createProduct, fetchMe } from "../../../../lib/adminApi";
 import { formatProductCategory, PRODUCT_CATEGORIES } from "../../../../lib/constants/productCategories";
 
+export const dynamic = "force-dynamic";
+
 function canMutateProducts(admin) {
     const roles = admin?.roles || [];
     return Array.isArray(roles) && (roles.includes("SUPERADMIN") || roles.includes("ADMIN"));
