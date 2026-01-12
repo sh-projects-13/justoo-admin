@@ -3,12 +3,15 @@
 import { useState } from "react";
 
 import { Button, Field, Input, Notice } from "@/_components/ui";
+import { useAuthStore } from "@/lib/stores/auth";
 
 export default function LoginForm({ nextUrl }) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const setAuthenticated = useAuthStore((s) => s.setAuthenticated);
 
     async function onSubmit(e) {
         e.preventDefault();
@@ -32,8 +35,12 @@ export default function LoginForm({ nextUrl }) {
             }
 
             if (res.ok) {
+                // Update Zustand auth store with the admin data
+                if (data?.admin) {
+                    setAuthenticated(data.admin);
+                }
+
                 // Use hard navigation to ensure cookie is sent on the next request.
-                // router.replace() is a soft navigation that can race with cookie storage.
                 window.location.href = nextUrl || "/admin";
                 return;
             }

@@ -7,7 +7,7 @@ export default function AdminHomePage() {
         <Page size="lg" className="max-w-5xl">
             <PageHeader
                 title="Admin"
-                subtitle="Youre signed in. Choose a section to manage."
+                subtitle="You&apos;re signed in. Choose a section to manage."
                 actions={<ButtonLink href="/logout">Logout</ButtonLink>}
             />
 

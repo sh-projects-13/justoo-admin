@@ -25,7 +25,7 @@ export default async function Home() {
           </Card>
         ) : (
           <Notice variant="warning" className="mt-6">
-            Youre not signed in.
+            You&apos;re not signed in.
           </Notice>
         )}
 

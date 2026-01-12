@@ -1,12 +1,17 @@
 import { NextResponse } from "next/server";
 
+export const runtime = "nodejs";
+
 /**
- * Logout route - clears the frontend session cookie and notifies backend.
+ * Logout API route - clears the frontend session cookie and notifies backend.
+ * 
+ * This is called by the client-side /logout page after clearing the Zustand store.
+ * Returns JSON instead of redirecting so the client can handle navigation.
  */
 
 const SESSION_COOKIE_NAME = "justoo.sid";
 
-export async function GET(req) {
+export async function POST(req) {
     const backendUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_BACKEND_URL;
 
     // Notify backend to invalidate session (best effort)
@@ -25,7 +30,7 @@ export async function GET(req) {
         }
     }
 
-    const res = NextResponse.redirect(new URL("/login", req.url));
+    const res = NextResponse.json({ ok: true });
 
     // Clear all possible session cookie names
     const cookiesToClear = [SESSION_COOKIE_NAME, "connect.sid"];
@@ -39,4 +44,9 @@ export async function GET(req) {
     }
 
     return res;
+}
+
+// Also support GET for direct browser navigation
+export async function GET(req) {
+    return POST(req);
 }
