@@ -86,13 +86,16 @@ export default async function AdminDetailPage({ params, searchParams }) {
         "use server";
 
         const delRes = await deleteAdmin(adminId);
-        if (!delRes.res.ok && delRes.res.status !== 204) {
-            const err = delRes.data?.error || "DELETE_FAILED";
-            redirect(`/admin/admins/${encodeURIComponent(adminId)}?error=${encodeURIComponent(err)}`);
-        }
 
         revalidatePath("/admin/admins");
-        redirect("/admin/admins");
+
+        // Always redirect to the admin list (never stay on the deleted admin's page)
+        if (!delRes.res.ok && delRes.res.status !== 204) {
+            const err = delRes.data?.error || "DELETE_FAILED";
+            redirect(`/admin/admins?error=${encodeURIComponent(err)}`);
+        }
+
+        redirect("/admin/admins?toast=Admin%20deleted&toastType=success");
     }
 
     const sp = await searchParams;
