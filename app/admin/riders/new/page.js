@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
 import { createRider, fetchMe } from "../../../../lib/adminApi";
+import { SubmitButton } from "@/_components/submit-button";
 
 export const dynamic = "force-dynamic";
 
@@ -146,9 +147,9 @@ export default async function NewRiderPage({ searchParams }) {
                         Active
                     </label>
 
-                    <button type="submit" className="w-full rounded-xl bg-zinc-900 px-3 py-2 text-sm font-medium text-white">
+                    <SubmitButton className="w-full" pendingText="Creating…">
                         Create
-                    </button>
+                    </SubmitButton>
                 </form>
             </div>
         </div>

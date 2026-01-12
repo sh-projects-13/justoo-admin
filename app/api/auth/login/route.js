@@ -2,6 +2,18 @@ import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
+/**
+ * Login proxy route - handles cross-origin session cookie setup.
+ * 
+ * Problem: Frontend and backend are on different domains. The backend sets a
+ * session cookie with SameSite=None, but the browser won't send it to the
+ * frontend domain. Solution: This route proxies the login request, extracts
+ * the session cookie from the backend response, and sets it on the frontend
+ * domain.
+ */
+
+const SESSION_COOKIE_NAME = "justoo.sid";
+
 function normalizeBaseUrl(url) {
     return String(url || "").replace(/\/+$/, "");
 }
@@ -10,9 +22,10 @@ function getBackendBaseUrl() {
     return normalizeBaseUrl(process.env.BACKEND_URL || process.env.NEXT_PUBLIC_BACKEND_URL);
 }
 
+/**
+ * Parse a Set-Cookie header value to extract name and value.
+ */
 function parseSetCookieNameValue(setCookie) {
-    // setCookie is a full Set-Cookie header value for one cookie.
-    // e.g. "justoo.sid=abc123; Path=/; HttpOnly; Secure; SameSite=None"
     if (!setCookie) return null;
     const first = String(setCookie).split(";", 1)[0];
     const idx = first.indexOf("=");
@@ -23,22 +36,27 @@ function parseSetCookieNameValue(setCookie) {
     return { name, value };
 }
 
-function pickSessionCookie(setCookies, preferredName) {
+/**
+ * Pick the session cookie from backend Set-Cookie headers.
+ */
+function pickSessionCookie(setCookies) {
     const parsed = (setCookies || []).map(parseSetCookieNameValue).filter(Boolean);
 
-    if (preferredName) {
-        const hit = parsed.find((c) => c.name === preferredName);
-        if (hit) return hit;
-    }
+    // Prefer our known session cookie name
+    const preferred = parsed.find((c) => c.name === SESSION_COOKIE_NAME);
+    if (preferred) return preferred;
 
-    // Heuristics: pick a likely session cookie.
+    // Fallback: connect.sid
+    const connectSid = parsed.find((c) => c.name === "connect.sid");
+    if (connectSid) return connectSid;
+
+    // Fallback: any cookie that looks like a session ID
     const sid = parsed.find((c) => /(^|\.|_)sid$/i.test(c.name) || /session/i.test(c.name));
     return sid || parsed[0] || null;
 }
 
 export async function POST(req) {
     const backendUrl = getBackendBaseUrl();
-    const preferredCookieName = process.env.SESSION_COOKIE_NAME || "justoo.sid";
 
     if (!backendUrl) {
         return NextResponse.json({ error: "MISSING_BACKEND_URL" }, { status: 500 });
@@ -66,14 +84,14 @@ export async function POST(req) {
                 "content-type": "application/json",
                 accept: "application/json",
             },
-            // This is server-to-server; cookies are returned via Set-Cookie.
             body: JSON.stringify({ email, password }),
-            // Some backends set session cookies on 302/303. We must not lose those headers.
             redirect: "manual",
             cache: "no-store",
         });
     } catch (err) {
-        const message = err?.cause?.code ? `${err.cause.code}: ${err?.cause?.message || err.message}` : err?.message || "Fetch failed";
+        const message = err?.cause?.code
+            ? `${err.cause.code}: ${err?.cause?.message || err.message}`
+            : err?.message || "Fetch failed";
         return NextResponse.json({ error: "BACKEND_UNREACHABLE", message }, { status: 503 });
     }
 
@@ -85,6 +103,7 @@ export async function POST(req) {
         data = null;
     }
 
+    // Extract Set-Cookie headers from backend response
     const setCookies =
         typeof backendRes.headers.getSetCookie === "function"
             ? backendRes.headers.getSetCookie()
@@ -92,36 +111,35 @@ export async function POST(req) {
                 ? [backendRes.headers.get("set-cookie")]
                 : [];
 
-    const sessionCookie = pickSessionCookie(setCookies, preferredCookieName);
+    const sessionCookie = pickSessionCookie(setCookies);
 
-    // If backend says failure AND we didn't get any cookie, surface the backend failure.
-    // If we DID get a cookie, treat 3xx login flows as success.
-    if (!backendRes.ok && !(backendRes.status >= 300 && backendRes.status < 400 && sessionCookie)) {
+    // If backend says failure AND we didn't get a session cookie, surface the error
+    const isRedirectSuccess = backendRes.status >= 300 && backendRes.status < 400 && sessionCookie;
+    if (!backendRes.ok && !isRedirectSuccess) {
         return NextResponse.json(data || { error: "LOGIN_FAILED" }, { status: backendRes.status });
     }
 
     const res = NextResponse.json(data || { ok: true }, { status: 200 });
 
-    // Critical part: set the session cookie on the FRONTEND domain.
-    // This makes Next middleware + server components see it on /admin requests.
+    // Set the session cookie on the frontend domain
     if (sessionCookie?.name && typeof sessionCookie.value === "string") {
-        // Decode the cookie value if it was URL-encoded by the backend,
-        // so we store the raw value. NextResponse.cookies will re-encode if needed.
         let cookieValue = sessionCookie.value;
+
+        // Decode URL-encoded cookie value if needed
         try {
-            // Only decode if it looks URL-encoded (contains %)
             if (cookieValue.includes("%")) {
                 cookieValue = decodeURIComponent(cookieValue);
             }
         } catch {
-            // If decoding fails, use the original value
+            // Keep original value if decoding fails
         }
 
-        res.cookies.set(sessionCookie.name, cookieValue, {
+        res.cookies.set(SESSION_COOKIE_NAME, cookieValue, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
+            sameSite: "lax", // Frontend cookie doesn't need SameSite=None
             path: "/",
+            maxAge: 60 * 60 * 24 * 7, // 7 days
         });
     }
 

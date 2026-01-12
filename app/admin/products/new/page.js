@@ -5,6 +5,8 @@ import { revalidatePath } from "next/cache";
 import { createProduct, fetchMe } from "../../../../lib/adminApi";
 import { formatProductCategory, PRODUCT_CATEGORIES } from "../../../../lib/constants/productCategories";
 
+import { SubmitButton } from "@/_components/submit-button";
+
 export const dynamic = "force-dynamic";
 
 function canMutateProducts(admin) {
@@ -139,9 +141,9 @@ export default async function NewProductPage({ searchParams }) {
                         />
                     </div>
 
-                    <button type="submit" className="w-full rounded-xl bg-zinc-900 px-3 py-2 text-sm font-medium text-white">
+                    <SubmitButton className="w-full" pendingText="Creating…">
                         Create
-                    </button>
+                    </SubmitButton>
                 </form>
             </div>
         </div>

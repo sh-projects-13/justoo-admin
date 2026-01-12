@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
 import { fetchMe, getAdminById, updateAdmin, deleteAdmin } from "../../../../lib/adminApi";
+import { SubmitButton } from "@/_components/submit-button";
 
 export const dynamic = "force-dynamic";
 
@@ -159,15 +160,15 @@ export default async function AdminDetailPage({ params, searchParams }) {
                         <p className="text-xs text-zinc-500">Clearing the field will remove all roles.</p>
                     </div>
 
-                    <button type="submit" className="w-full rounded-xl bg-zinc-900 px-3 py-2 text-sm font-medium text-white">
+                    <SubmitButton className="w-full" pendingText="Saving…">
                         Save
-                    </button>
+                    </SubmitButton>
                 </form>
 
                 <form action={deleteAction} className="mt-4 rounded-2xl border border-zinc-200 bg-white p-6">
-                    <button type="submit" className="w-full rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-800">
+                    <SubmitButton className="w-full" variant="danger" pendingText="Deleting…">
                         Delete admin
-                    </button>
+                    </SubmitButton>
                 </form>
             </div>
         </div>

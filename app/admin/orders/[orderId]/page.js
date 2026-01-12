@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 
 import { cancelOrder, fetchMe, getOrderById } from "../../../../lib/adminApi";
 
+import { SubmitButton } from "@/_components/submit-button";
+
 export const dynamic = "force-dynamic";
 
 function canCancel(status) {
@@ -172,12 +174,9 @@ export default async function OrderDetailPage({ params, searchParams }) {
                                     placeholder="Customer requested cancellation"
                                 />
                             </div>
-                            <button
-                                type="submit"
-                                className="w-full rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-800"
-                            >
+                            <SubmitButton className="w-full" variant="danger" pendingText="Cancelling…">
                                 Cancel order
-                            </button>
+                            </SubmitButton>
                         </form>
                     ) : (
                         <div className="mt-3 text-sm text-zinc-600">This order can’t be cancelled.</div>

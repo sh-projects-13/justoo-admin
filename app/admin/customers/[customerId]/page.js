@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 
 import { fetchMe, getCustomerById, updateCustomer, deleteCustomer } from "../../../../lib/adminApi";
 
+import { SubmitButton } from "@/_components/submit-button";
+
 export const dynamic = "force-dynamic";
 
 function normalizePhone10(value) {
@@ -137,7 +139,6 @@ export default async function CustomerDetailPage({ params, searchParams }) {
                                 defaultValue={customerPhone10}
                                 inputMode="numeric"
                                 autoComplete="tel-national"
-                                pattern="\\d{10}"
                                 minLength={10}
                                 maxLength={10}
                                 className="w-full bg-white px-3 py-2 text-sm text-zinc-900 outline-none"
@@ -159,15 +160,15 @@ export default async function CustomerDetailPage({ params, searchParams }) {
                         <p className="text-xs text-zinc-500">Leave blank to clear.</p>
                     </div>
 
-                    <button type="submit" className="w-full rounded-xl bg-zinc-900 px-3 py-2 text-sm font-medium text-white">
+                    <SubmitButton className="w-full" pendingText="Saving…">
                         Save
-                    </button>
+                    </SubmitButton>
                 </form>
 
                 <form action={deleteAction} className="mt-4 rounded-2xl border border-zinc-200 bg-white p-6">
-                    <button type="submit" className="w-full rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-800">
+                    <SubmitButton className="w-full" variant="danger" pendingText="Deleting…">
                         Delete customer
-                    </button>
+                    </SubmitButton>
                 </form>
             </div>
         </div>

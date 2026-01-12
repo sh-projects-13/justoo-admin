@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 
 import { createInventoryItem, fetchMe, listProducts } from "../../../../lib/adminApi";
 
+import { SubmitButton } from "@/_components/submit-button";
+
 export const dynamic = "force-dynamic";
 
 export default async function NewInventoryItemPage({ searchParams }) {
@@ -141,13 +143,13 @@ export default async function NewInventoryItemPage({ searchParams }) {
                         />
                     </div>
 
-                    <button
-                        type="submit"
+                    <SubmitButton
+                        className="w-full"
+                        pendingText="Creating…"
                         disabled={!productsRes.res.ok || products.length === 0}
-                        className="w-full rounded-xl bg-zinc-900 px-3 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
                     >
                         Create
-                    </button>
+                    </SubmitButton>
                 </form>
             </div>
         </div>

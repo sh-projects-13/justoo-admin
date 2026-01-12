@@ -9,6 +9,8 @@ import {
     listWhitelistedPhones,
 } from "../../../lib/adminApi";
 
+import { SubmitButton } from "@/_components/submit-button";
+
 export const dynamic = "force-dynamic";
 
 function normalizePhone10(value) {
@@ -136,7 +138,6 @@ export default async function WhitelistPage({ searchParams }) {
                                     required
                                     inputMode="numeric"
                                     autoComplete="tel-national"
-                                    pattern="\\d{10}"
                                     minLength={10}
                                     maxLength={10}
                                     className="w-full bg-white px-3 py-2 text-sm text-zinc-900 outline-none"
@@ -145,9 +146,7 @@ export default async function WhitelistPage({ searchParams }) {
                             </div>
                             <p className="text-xs text-zinc-500">Enter a 10-digit mobile number.</p>
                         </div>
-                        <button type="submit" className="rounded-xl bg-zinc-900 px-4 py-2 text-sm font-medium text-white">
-                            Add
-                        </button>
+                        <SubmitButton pendingText="Adding…">Add</SubmitButton>
                     </div>
                 </form>
 
@@ -170,12 +169,9 @@ export default async function WhitelistPage({ searchParams }) {
                                     <td className="px-4 py-3">
                                         <form action={deleteAction}>
                                             <input type="hidden" name="phone" value={p.phone} />
-                                            <button
-                                                type="submit"
-                                                className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-800"
-                                            >
+                                            <SubmitButton variant="danger" pendingText="Deleting…">
                                                 Delete
-                                            </button>
+                                            </SubmitButton>
                                         </form>
                                     </td>
                                 </tr>

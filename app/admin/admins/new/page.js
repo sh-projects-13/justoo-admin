@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createAdmin, fetchMe } from "../../../../lib/adminApi";
 
 import { ButtonLink, Card, Notice, Page, PageHeader } from "@/_components/ui";
+import { SubmitButton } from "@/_components/submit-button";
 
 export const dynamic = "force-dynamic";
 
@@ -110,9 +111,9 @@ export default async function NewAdminPage({ searchParams }) {
                         </select>
                     </div>
 
-                    <button type="submit" className="w-full rounded-xl bg-zinc-900 px-3 py-2 text-sm font-medium text-white">
+                    <SubmitButton className="w-full" pendingText="Creating…">
                         Create
-                    </button>
+                    </SubmitButton>
                 </form>
             </Card>
         </Page>
